@@ -1,7 +1,10 @@
+<script setup lang="ts">
+import AppSnackbar from '@/shared/components/AppSnackbar.vue'
+</script>
+
 <template>
   <v-app>
-    <v-main>
-      <div class="pa-4 text-body-1">setup</div>
-    </v-main>
+    <router-view />
+    <AppSnackbar />
   </v-app>
 </template>
