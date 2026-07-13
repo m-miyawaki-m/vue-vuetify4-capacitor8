@@ -15,13 +15,7 @@ const typeItems = [
 <template>
   <div class="d-flex flex-column ga-2">
     <v-select v-model="type" :items="typeItems" label="区分" hide-details />
-    <v-text-field
-      v-model.number="quantity"
-      type="number"
-      label="数量"
-      min="0"
-      hide-details
-    />
+    <v-text-field v-model.number="quantity" type="number" label="数量" min="0" hide-details />
     <v-text-field v-model="note" label="メモ(任意)" hide-details />
   </div>
 </template>

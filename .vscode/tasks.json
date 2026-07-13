@@ -1,0 +1,165 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev: Vite + Prism モック",
+      "type": "npm",
+      "script": "dev:mock",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "vite",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "Local:.*localhost:3000"
+        }
+      },
+      "presentation": {
+        "group": "dev",
+        "reveal": "always"
+      },
+      "detail": "開発サーバー(3000) + Prism モック(4010) を並列起動"
+    },
+    {
+      "label": "mock: Prism 単体",
+      "type": "npm",
+      "script": "mock:prism",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "prism",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "Prism is listening"
+        }
+      },
+      "presentation": {
+        "group": "dev",
+        "reveal": "always"
+      },
+      "detail": "openapi/api.yaml をポート 4010 でモック起動"
+    },
+    {
+      "label": "android: エミュレータ起動",
+      "type": "npm",
+      "script": "android:emu",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "emulator",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "EMULATOR READY"
+        }
+      },
+      "presentation": {
+        "group": "dev",
+        "reveal": "always"
+      },
+      "detail": "AVD をブートしブート完了まで待機。起動済みなら即完了。タスク終了でエミュレータも終了"
+    },
+    {
+      "label": "android: ライブリロード (エミュレータ)",
+      "type": "npm",
+      "script": "android:dev",
+      "dependsOn": ["android: エミュレータ起動"],
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "capacitor",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "Local:.*localhost:3000"
+        }
+      },
+      "presentation": {
+        "group": "dev",
+        "reveal": "always"
+      },
+      "detail": "Vite + Prism 起動 + cap run(WebView が 10.0.2.2:3000 を直接読む)。要: エミュレータ起動済み・JAVA_HOME"
+    },
+    {
+      "label": "android: APK ビルド→インストール起動 (エミュレータ)",
+      "type": "npm",
+      "script": "android:run",
+      "dependsOn": ["android: エミュレータ起動"],
+      "group": "build",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always"
+      },
+      "detail": "emulator モードでビルド → cap run で APK 作成・インストール・スタンドアローン起動。モック API は mock:prism を別途起動"
+    },
+    {
+      "label": "build: Web",
+      "type": "npm",
+      "script": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$tsc"],
+      "detail": "type-check + vite build"
+    },
+    {
+      "label": "build: Android sync",
+      "type": "npm",
+      "script": "android:sync",
+      "group": "build",
+      "problemMatcher": [],
+      "detail": "Android 向けビルド + cap sync android"
+    },
+    {
+      "label": "test: unit (Vitest)",
+      "type": "npm",
+      "script": "test:run",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "detail": "ユニットテストを一括実行"
+    },
+    {
+      "label": "test: E2E (Playwright)",
+      "type": "npm",
+      "script": "test:e2e",
+      "group": "test",
+      "problemMatcher": [],
+      "detail": "E2E テスト(モックサーバー自動起動)"
+    },
+    {
+      "label": "check: lint",
+      "type": "npm",
+      "script": "lint",
+      "problemMatcher": ["$eslint-stylish"],
+      "detail": "ESLint (--fix 付き)"
+    },
+    {
+      "label": "check: type-check",
+      "type": "npm",
+      "script": "type-check",
+      "problemMatcher": ["$tsc"],
+      "detail": "vue-tsc による型チェック"
+    },
+    {
+      "label": "gen: orval (API コード生成)",
+      "type": "npm",
+      "script": "orval",
+      "problemMatcher": [],
+      "detail": "openapi/api.yaml から shared/api/generated/ を再生成"
+    }
+  ]
+}

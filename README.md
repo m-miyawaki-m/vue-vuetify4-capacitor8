@@ -5,6 +5,7 @@ Android 13(API 33)専用 / PWA 非対応。
 
 設計: `docs/superpowers/specs/2026-07-13-project-foundation-design.md`
 Android セットアップ: `docs/setup-android.md`
+ルーティング(URL に `#` が付く理由): `docs/routing-hash-mode.md`
 
 ## スタック
 
@@ -17,6 +18,9 @@ npm install
 npm run dev:mock   # Vite(3000) + Prism モック(4010)
 ```
 
+VS Code 利用時は `.vscode/` にタスク(Ctrl+Shift+B でビルド、「タスクの実行」から dev/mock/test 等)・
+デバッグ構成(Chrome / Vitest)・推奨拡張機能を定義済み。
+
 ## 主要コマンド
 
 | コマンド | 内容 |
@@ -26,6 +30,9 @@ npm run dev:mock   # Vite(3000) + Prism モック(4010)
 | `npm run test:run` | ユニットテスト(Vitest) |
 | `npm run test:e2e` | E2E(Playwright、モック自動起動) |
 | `npm run android:sync` | Android 向けビルド + cap sync |
+| `npm run android:emu` | エミュレータ(AVD)起動 |
+| `npm run android:dev` | エミュレータでライブリロード開発 |
+| `npm run android:run` | APK ビルド→エミュレータへインストール起動 |
 | `npm run lint` / `npm run type-check` | 静的チェック |
 
 ## 構造

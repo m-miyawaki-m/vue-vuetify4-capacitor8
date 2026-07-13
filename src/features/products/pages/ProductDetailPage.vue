@@ -26,13 +26,7 @@ const { product, form, canSubmit, isPending, submit } = useProductDetailPage()
       />
     </v-container>
     <template #footer>
-      <v-btn
-        block
-        color="primary"
-        size="large"
-        :disabled="!canSubmit || isPending"
-        @click="submit"
-      >
+      <v-btn block color="primary" size="large" :disabled="!canSubmit || isPending" @click="submit">
         登録
       </v-btn>
     </template>

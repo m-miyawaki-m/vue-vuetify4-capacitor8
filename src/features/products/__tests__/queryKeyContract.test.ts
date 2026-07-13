@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  getGetProductQueryKey,
-  getListProductsQueryKey,
-} from '@/shared/api/generated/endpoints'
+import { getGetProductQueryKey, getListProductsQueryKey } from '@/shared/api/generated/endpoints'
 
 // useProductDetailPage の invalidateQueries({ queryKey: ['products'] }) は
 // 生成 queryKey が 'products' で始まることに依存している。

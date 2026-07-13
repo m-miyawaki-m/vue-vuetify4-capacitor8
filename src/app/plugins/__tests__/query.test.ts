@@ -16,9 +16,7 @@ describe('createAppQueryClient', () => {
     const client = createAppQueryClient()
     const { state } = useNotify()
     state.visible = false
-    client
-      .getQueryCache()
-      .config.onError?.(new ApiError('サーバーエラー', 500), {} as never)
+    client.getQueryCache().config.onError?.(new ApiError('サーバーエラー', 500), {} as never)
     expect(state.visible).toBe(true)
     expect(state.message).toBe('サーバーエラー')
   })
