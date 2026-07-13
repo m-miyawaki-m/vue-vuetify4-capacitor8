@@ -10,6 +10,12 @@
 - 業務機能: **入庫・出庫・現品調査** の3機能(土台完成後に追加)
 - 必要な既存機能(スキャナー等)は土台完成後に個別判断で移植する
 
+### 動作前提
+
+- **Android 13(API 33)で動作するハイブリッドアプリ**(Capacitor の WebView 上で動作)。minSdk = 33 とし、それ未満の端末は考慮しない
+- **PWA としては利用しない**。Service Worker・Web App Manifest・オフラインキャッシュ等の PWA 資産は一切作らない。配布は APK(社内配布)
+- ブラウザでの起動は開発時の確認手段としてのみ使う(デプロイ対象ではない)
+
 ## 2. 技術スタック
 
 | 区分 | 採用 |
@@ -190,7 +196,8 @@ features/products/pages/
 | Android | ビルド → `cap sync` | `.env.android` の URL |
 | E2E | `npm run test:e2e` | Prism |
 
-- Capacitor 8 標準の `webDir: 'dist'` 構成
+- Capacitor 8 標準の `webDir: 'dist'` 構成。android/ の minSdkVersion は 33(Android 13)
+- PWA 関連の設定(vite-plugin-pwa、manifest、Service Worker)は導入しない
 - gradle CLI ビルドは JAVA_HOME を Android Studio の JBR(21) に向ける必要あり。local.properties 含めセットアップ手順を docs に残す
 
 ## 10. エラーハンドリング
