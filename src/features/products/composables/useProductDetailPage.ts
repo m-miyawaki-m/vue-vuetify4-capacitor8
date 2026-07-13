@@ -1,0 +1,55 @@
+import { computed, reactive } from 'vue'
+import { useRoute } from 'vue-router'
+import { useQueryClient } from '@tanstack/vue-query'
+import { useCreateStockMovement, useGetProduct } from '@/shared/api/generated/endpoints'
+import type { StockMovementRequest } from '@/shared/api/generated/model'
+import { useNotify } from '@/shared/composables/useNotify'
+
+/** 詳細ページ: 商品表示 + 入庫/出庫/現品調査の登録(スペック §5) */
+export function useProductDetailPage() {
+  const route = useRoute()
+  const queryClient = useQueryClient()
+  const { notify } = useNotify()
+
+  const id = computed(() => String(route.params.id))
+  const { data: product } = useGetProduct(id, {
+    query: {
+      // 離脱時に route.params が先にリセットされ id が "undefined" になるため、
+      // このルートにいる間だけクエリを有効にする
+      enabled: computed(() => route.name === 'product-detail'),
+    },
+  })
+
+  const form = reactive({
+    type: 'IN' as StockMovementRequest['type'],
+    quantity: 1,
+    note: '',
+  })
+
+  const canSubmit = computed(() => Number.isInteger(form.quantity) && form.quantity >= 0)
+
+  const { mutate, isPending } = useCreateStockMovement({
+    mutation: {
+      onSuccess: async () => {
+        // 生成 queryKey は ['products', ...] 形式(一覧・詳細とも同じ接頭辞)。
+        // 前方一致で一覧・詳細のキャッシュをまとめて無効化する
+        await queryClient.invalidateQueries({ queryKey: ['products'] })
+        notify('success', '登録しました')
+      },
+    },
+  })
+
+  const submit = () => {
+    if (!canSubmit.value) return
+    mutate({
+      data: {
+        productId: id.value,
+        type: form.type,
+        quantity: form.quantity,
+        note: form.note.trim() || undefined,
+      },
+    })
+  }
+
+  return { product, form, canSubmit, isPending, submit }
+}
