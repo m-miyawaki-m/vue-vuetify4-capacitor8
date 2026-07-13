@@ -1,0 +1,180 @@
+openapi: 3.0.3
+info:
+  title: Warehouse Scan API
+  version: 0.1.0
+  description: 倉庫内作業(入庫・出庫・現品調査)向け最小 API
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: 疎通確認(オフライン復帰の実疎通チェックに使用)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+              example:
+                status: ok
+  /products:
+    get:
+      operationId: listProducts
+      summary: 商品照合(コード・キーワード検索)
+      parameters:
+        - name: code
+          in: query
+          required: false
+          schema:
+            type: string
+          description: JAN/バーコード値の完全一致
+        - name: keyword
+          in: query
+          required: false
+          schema:
+            type: string
+          description: 品名の部分一致
+      responses:
+        '200':
+          description: 商品一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+              example:
+                - id: p-001
+                  code: '4901234567894'
+                  name: ボルト M6
+                  stock: 120
+                  location: A-01-1
+                  updatedAt: '2026-07-13T09:00:00Z'
+                - id: p-002
+                  code: '4901234567900'
+                  name: ナット M6
+                  stock: 300
+                  location: A-01-2
+                  updatedAt: '2026-07-13T09:00:00Z'
+  /products/{id}:
+    get:
+      operationId: getProduct
+      summary: 商品詳細
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 商品
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              example:
+                id: p-001
+                code: '4901234567894'
+                name: ボルト M6
+                stock: 120
+                location: A-01-1
+                updatedAt: '2026-07-13T09:00:00Z'
+        '404':
+          description: 未存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: 商品が見つかりません
+  /stock-movements:
+    post:
+      operationId: createStockMovement
+      summary: 入庫・出庫・現品調査の登録
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StockMovementRequest'
+      responses:
+        '201':
+          description: 登録済み
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockMovement'
+              example:
+                id: m-001
+                productId: p-001
+                type: IN
+                quantity: 10
+                note: ''
+                createdAt: '2026-07-13T09:30:00Z'
+        '400':
+          description: 入力不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: 数量が不正です
+components:
+  schemas:
+    Product:
+      type: object
+      required: [id, code, name, stock, location, updatedAt]
+      properties:
+        id:
+          type: string
+        code:
+          type: string
+          description: JAN/バーコード値
+        name:
+          type: string
+        stock:
+          type: integer
+        location:
+          type: string
+          description: 棚番(例 A-03-2)
+        updatedAt:
+          type: string
+          format: date-time
+    StockMovementRequest:
+      type: object
+      required: [productId, type, quantity]
+      properties:
+        productId:
+          type: string
+        type:
+          type: string
+          enum: [IN, OUT, ADJUST]
+          description: IN=入庫 / OUT=出庫 / ADJUST=現品調査(実数訂正)
+        quantity:
+          type: integer
+          description: IN/OUT は増減数、ADJUST は実数
+        note:
+          type: string
+          description: 任意メモ(調査時の差異理由など)
+    StockMovement:
+      allOf:
+        - $ref: '#/components/schemas/StockMovementRequest'
+        - type: object
+          required: [id, createdAt]
+          properties:
+            id:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+    ErrorResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
