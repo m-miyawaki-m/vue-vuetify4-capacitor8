@@ -24,7 +24,8 @@
 | ネイティブ | Capacitor 8(Android) |
 | API層 | OpenAPI(手書き) → orval 生成(vue-query フック + zod スキーマ) |
 | HTTP | axios(カスタム mutator 1本) |
-| 状態管理 | サーバー状態 = vue-query / クライアント状態 = Pinia |
+| 状態管理 | サーバー状態 = vue-query / クライアント状態 = Pinia(+ persistedstate) |
+| ネットワーク検知 | @capacitor/network(vue-query onlineManager と連携) |
 | モック | Prism(openapi/api.yaml から起動) |
 | テスト | Vitest(ユニット) + Playwright(E2E、Prism 相手) |
 
@@ -97,6 +98,7 @@ features/<機能>/pages/ + components/   ← 生成コードを直接 import し
 | GET | `/products?code=&keyword=` | スキャン値・キーワードで商品照合 | useQuery + クエリパラメータ + queryKey 設計 |
 | GET | `/products/{id}` | 商品詳細(現在庫・棚番) | パスパラメータ付き useQuery |
 | POST | `/stock-movements` | 入庫・出庫・現品調査の登録 | useMutation + invalidateQueries |
+| GET | `/health` | オフライン復帰の実疎通確認(§7.5) | 生成フックを使わず mutator 直叩き |
 
 ```yaml
 Product:
@@ -169,6 +171,32 @@ features/products/pages/
 - **バックグラウンド再取得ではスピナーを回さない**(stale-while-revalidate を殺さないため、predicate で初回取得のみカウント)。ミューテーションは常に対象
 - ちらつき防止の表示遅延(200ms)は初期スコープでは入れず、気になったら後付け
 - 各 feature のページはローディングについて何も書かない(勝手に回る)
+
+## 7.5 オフライン検知(オフライン対応はしない)
+
+オフラインでの業務継続(オフラインキュー・自動再送)は**やらない**。切断の検知と復帰導線のみ持つ。
+専用ルート(オフライン画面への遷移)は作らず、**現在の画面の上にオーバーレイを被せる**方式とする(作業状態を失わないため。倉庫では棚の陰などによる瞬断が頻発する前提)。
+
+### 2層構え
+
+| 層 | 仕組み |
+|---|---|
+| 検知層 | `@capacitor/network` で接続監視 → 切断が2〜3秒続いたら `AppOfflineOverlay.vue` を全画面表示。復帰イベントで自動的に閉じる |
+| 事実層 | 接続表示があっても実際は通信不能なケースがあるため、API 失敗時のハンドリング(vue-query retry + useNotify)は独立して機能させる |
+
+- vue-query の `onlineManager` に Capacitor の Network イベントを接続し、オフライン中はクエリ・ミューテーションを一時停止、復帰で自動再開させる
+
+### 復帰しない場合のエスカレーション
+
+1. オーバーレイに**手動「再試行」ボタン**: `GET /health` 相当の軽い API で実疎通を確認し、成功したら閉じる
+2. **30秒復帰しなければ案内を追加**: 「Wi-Fi 設定を確認してください」+ OS の Wi-Fi 設定画面を開くボタン(インテント)
+3. それでも復帰しなければ「管理者に連絡」の運用案内。アプリとしてはそれ以上何もしない
+
+### 作業中データの扱い
+
+- アプリが生きている限り、画面状態(スキャン済みリスト・入力中の値)はオーバーレイの下で保持される。復帰後そのまま続行できる
+- 未送信の登録はタスクキルで消える(オフライン対応なしの割り切り)
+- 保険として、作業中のクライアント状態は `pinia-plugin-persistedstate` で端末保存する(アプリを開き直したとき入力途中から再開できる。自動再送はしない)
 
 ## 8. コーディング規約
 
