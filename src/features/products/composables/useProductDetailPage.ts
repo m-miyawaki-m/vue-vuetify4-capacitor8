@@ -25,10 +25,9 @@ export function useProductDetailPage() {
   const { mutate, isPending } = useCreateStockMovement({
     mutation: {
       onSuccess: async () => {
-        // 一覧・詳細のキャッシュをまとめて無効化して最新在庫を取り直す
-        await queryClient.invalidateQueries({
-          predicate: (query) => String(query.queryKey[0]).startsWith('/products'),
-        })
+        // 生成 queryKey は ['products', ...] 形式(一覧・詳細とも同じ接頭辞)。
+        // 前方一致で一覧・詳細のキャッシュをまとめて無効化する
+        await queryClient.invalidateQueries({ queryKey: ['products'] })
         notify('success', '登録しました')
       },
     },
