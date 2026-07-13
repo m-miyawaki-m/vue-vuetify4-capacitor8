@@ -33,3 +33,9 @@
 
 `.env.android` の `VITE_API_BASE_URL` を開発PCの LAN IP(例 `http://192.168.0.10:4010`)にし、
 PC 側で `npm run mock:prism` を起動しておく。端末と PC は同一 Wi-Fi に接続すること。
+
+## 既知の制約
+
+- `android/app/src/debug/AndroidManifest.xml` で `usesCleartextTraffic="true"` を debug ビルドのみに
+  上書きしている。上記のモック API(http)接続は debug ビルドでのみ有効。
+- release ビルドではこのオーバーレイは適用されないため、実 API に接続する場合は HTTPS 必須。
