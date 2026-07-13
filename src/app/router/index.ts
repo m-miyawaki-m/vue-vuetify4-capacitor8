@@ -5,7 +5,19 @@ import { setNavigating } from '@/shared/composables/useGlobalLoading'
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
-    // 機能ルートは各 feature 追加時にここへ登録する(Task 10 で products を追加)
+    { path: '/', redirect: '/products/search' },
+    {
+      path: '/products/search',
+      component: () => import('@/features/products/pages/ProductSearchPage.vue'),
+    },
+    {
+      path: '/products',
+      component: () => import('@/features/products/pages/ProductListPage.vue'),
+    },
+    {
+      path: '/products/:id',
+      component: () => import('@/features/products/pages/ProductDetailPage.vue'),
+    },
   ],
 })
 
