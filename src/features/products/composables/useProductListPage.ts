@@ -22,6 +22,9 @@ export function useProductListPage() {
   const { data } = useListProducts(params, {
     query: {
       select: (response) => parseOrNotify(ListProductsResponse, response),
+      // 離脱時に route.query が先にリセットされ不整合な条件で再取得されるため、
+      // このルートにいる間だけクエリを有効にする
+      enabled: computed(() => route.name === 'product-list'),
     },
   })
 

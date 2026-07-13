@@ -8,14 +8,17 @@ const router = createRouter({
     { path: '/', redirect: '/products/search' },
     {
       path: '/products/search',
+      name: 'product-search',
       component: () => import('@/features/products/pages/ProductSearchPage.vue'),
     },
     {
       path: '/products',
+      name: 'product-list',
       component: () => import('@/features/products/pages/ProductListPage.vue'),
     },
     {
       path: '/products/:id',
+      name: 'product-detail',
       component: () => import('@/features/products/pages/ProductDetailPage.vue'),
     },
   ],

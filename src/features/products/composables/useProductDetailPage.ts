@@ -12,7 +12,13 @@ export function useProductDetailPage() {
   const { notify } = useNotify()
 
   const id = computed(() => String(route.params.id))
-  const { data: product } = useGetProduct(id)
+  const { data: product } = useGetProduct(id, {
+    query: {
+      // 離脱時に route.params が先にリセットされ id が "undefined" になるため、
+      // このルートにいる間だけクエリを有効にする
+      enabled: computed(() => route.name === 'product-detail'),
+    },
+  })
 
   const form = reactive({
     type: 'IN' as StockMovementRequest['type'],
