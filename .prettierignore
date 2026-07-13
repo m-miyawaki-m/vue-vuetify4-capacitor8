@@ -1,0 +1,6 @@
+dist
+android
+coverage
+playwright-report
+test-results
+src/shared/api/generated
